@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oak Fitness — Dad Class Rankings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:      #162016;
+            --bg2:     #1e2d1e;
+            --card:    #f5eed8;
+            --card2:   #ede5cc;
+            --gold:    #d4a843;
+            --gold2:   #b8912e;
+            --silver:  #a8b0b8;
+            --bronze:  #c87941;
+            --green:   #4a7c59;
+            --green2:  #3a6347;
+            --text:    #1a1a1a;
+            --muted:   #666;
+            --white:   #fff;
+            --shadow:  0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            background-image:
+                radial-gradient(ellipse at 15% 10%, rgba(74,124,89,0.18) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 85%, rgba(212,168,67,0.10) 0%, transparent 55%);
+        }
+
+        /* ── Header ─────────────────────────────── */
+        .header {
+            text-align: center;
+            padding: 44px 20px 16px;
+        }
+        .header-eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(52px, 10vw, 104px);
+            color: var(--card);
+            line-height: 0.88;
+            letter-spacing: 3px;
+        }
+        .header h1 span { color: var(--gold); }
+        .header-sub {
+            font-size: 13px;
+            color: rgba(245,238,216,0.4);
+            margin-top: 14px;
+            letter-spacing: 1px;
+        }
+
+        /* ── Season tabs ─────────────────────────── */
+        .season-bar {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 24px 20px 12px;
+            flex-wrap: wrap;
+        }
+        .season-btn {
+            background: rgba(245,238,216,0.07);
+            border: 1px solid rgba(245,238,216,0.12);
+            color: rgba(245,238,216,0.5);
+            padding: 7px 18px;
+            border-radius: 999px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .season-btn.active {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--bg);
+        }
+        .season-btn:hover:not(.active) {
+            background: rgba(245,238,216,0.11);
+            color: rgba(245,238,216,0.8);
+        }
+
+        /* ── Points key ──────────────────────────── */
+        .points-key {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            padding: 0 20px 26px;
+            flex-wrap: wrap;
+        }
+        .key-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: rgba(245,238,216,0.4);
+            letter-spacing: 0.3px;
+        }
+        .key-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ── Leaderboard container ───────────────── */
+        .leaderboard {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 16px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* ── Member card ─────────────────────────── */
+        .member-card {
+            background: var(--card);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .member-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 44px rgba(0,0,0,0.5);
+        }
+        .member-card.rank-1 {
+            background: linear-gradient(145deg, #f9f2de, #fdf6e3);
+            border-color: var(--gold);
+        }
+        .member-card.rank-2 { border-color: var(--silver); }
+        .member-card.rank-3 { border-color: var(--bronze); }
+
+        .card-main {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            gap: 14px;
+        }
+
+        .rank-badge {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 30px;
+            min-width: 42px;
+            text-align: center;
+            line-height: 1;
+            color: var(--muted);
+        }
+        .rank-1 .rank-badge { color: var(--gold);   font-size: 34px; }
+        .rank-2 .rank-badge { color: var(--silver);  font-size: 32px; }
+        .rank-3 .rank-badge { color: var(--bronze);  font-size: 32px; }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+        .rank-1 .avatar { background: var(--gold2); }
+        .rank-2 .avatar { background: #8a9298; }
+        .rank-3 .avatar { background: var(--bronze); }
+
+        .member-info { flex: 1; min-width: 0; }
+        .member-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .member-tier {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        .mini-stats {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+        .mini-stat {
+            font-size: 12px;
+            color: #777;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .points-display { text-align: right; flex-shrink: 0; }
+        .points-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 38px;
+            color: var(--text);
+            line-height: 1;
+        }
+        .rank-1 .points-num { color: var(--gold2); }
+        .points-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ── Card detail (expanded) ──────────────── */
+        .card-detail {
+            display: none;
+            padding: 16px 20px 20px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            animation: slideDown 0.22s ease;
+        }
+        .card-detail.open { display: block; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .stat-box {
+            background: rgba(0,0,0,0.06);
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+        .stat-box-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 30px;
+            color: var(--text);
+            line-height: 1;
+        }
+        .stat-box-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 3px;
+        }
+
+        .badges-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .badge {
+            background: rgba(74,124,89,0.10);
+            border: 1px solid rgba(74,124,89,0.18);
+            border-radius: 999px;
+            padding: 4px 11px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--green2);
+        }
+
+        .progress-bar-wrap { margin-top: 4px; }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .progress-bar {
+            height: 6px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green), var(--gold));
+            border-radius: 999px;
+            transition: width 0.7s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        /* ── Empty state ─────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(245,238,216,0.25);
+        }
+        .empty-icon { font-size: 52px; margin-bottom: 12px; }
+        .empty-state p { font-size: 15px; line-height: 1.6; }
+
+        /* ── Divider ─────────────────────────────── */
+        .divider {
+            height: 1px;
+            background: rgba(245,238,216,0.07);
+            max-width: 680px;
+            margin: 0 auto 20px;
+        }
+
+        /* ── Admin toggle ────────────────────────── */
+        .admin-toggle {
+            text-align: center;
+            padding-bottom: 16px;
+        }
+        .admin-toggle button {
+            background: transparent;
+            border: 1px solid rgba(245,238,216,0.12);
+            color: rgba(245,238,216,0.35);
+            padding: 7px 22px;
+            border-radius: 999px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .admin-toggle button:hover {
+            border-color: rgba(245,238,216,0.25);
+            color: rgba(245,238,216,0.6);
+        }
+
+        /* ── Admin panel ─────────────────────────── */
+        .admin-panel {
+            display: none;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 16px 60px;
+        }
+        .admin-panel.open { display: block; }
+
+        .admin-section {
+            background: rgba(245,238,216,0.04);
+            border: 1px solid rgba(245,238,216,0.09);
+            border-radius: 18px;
+            padding: 22px;
+            margin-bottom: 14px;
+        }
+        .admin-section h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px;
+            color: var(--card);
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .form-input {
+            flex: 1;
+            min-width: 130px;
+            padding: 10px 14px;
+            background: rgba(245,238,216,0.07);
+            border: 1px solid rgba(245,238,216,0.13);
+            border-radius: 11px;
+            color: var(--card);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input::placeholder { color: rgba(245,238,216,0.28); }
+        .form-input:focus { border-color: var(--gold); }
+
+        .form-select {
+            flex: 1;
+            min-width: 130px;
+            padding: 10px 14px;
+            background: rgba(20,34,20,0.95);
+            border: 1px solid rgba(245,238,216,0.13);
+            border-radius: 11px;
+            color: var(--card);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            transition: border-color 0.2s;
+        }
+        .form-select:focus { border-color: var(--gold); }
+        .form-select option { background: #1e2d1e; }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 11px;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.2px;
+            flex-shrink: 0;
+        }
+        .btn-gold {
+            background: var(--gold);
+            color: var(--bg);
+        }
+        .btn-gold:hover { background: var(--gold2); transform: translateY(-1px); }
+        .btn-danger {
+            background: rgba(220,70,50,0.12);
+            color: #ff7060;
+            border: 1px solid rgba(220,70,50,0.2);
+        }
+        .btn-danger:hover { background: rgba(220,70,50,0.2); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+
+        /* ── Member list (admin) ─────────────────── */
+        .member-list-admin {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .member-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 13px;
+            background: rgba(245,238,216,0.04);
+            border-radius: 10px;
+            color: rgba(245,238,216,0.65);
+            font-size: 14px;
+        }
+
+        /* ── Event log ───────────────────────────── */
+        .event-log {
+            max-height: 220px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .event-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(245,238,216,0.06);
+            font-size: 13px;
+            color: rgba(245,238,216,0.55);
+            gap: 12px;
+        }
+        .event-item:last-child { border-bottom: none; }
+        .event-pts {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            color: var(--gold);
+            flex-shrink: 0;
+            line-height: 1.1;
+        }
+        .event-date { font-size: 11px; opacity: 0.45; margin-top: 2px; }
+
+        /* ── Toast ───────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(90px);
+            background: var(--card);
+            color: var(--text);
+            padding: 11px 26px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+            transition: transform 0.32s cubic-bezier(0.34,1.56,0.64,1);
+            z-index: 999;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* ── Responsive ──────────────────────────── */
+        @media (max-width: 480px) {
+            .card-main { padding: 12px 14px; gap: 10px; }
+            .points-num { font-size: 30px; }
+            .rank-badge { font-size: 24px; min-width: 34px; }
+            .avatar { width: 44px; height: 44px; font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────── -->
+<div class="header">
+    <div class="header-eyebrow">🌳 Oak Fitness · Park Slope, Brooklyn</div>
+    <h1>DAD<br><span>CLASS</span></h1>
+    <p class="header-sub">Fantasy Rankings · Root. Grow. Thrive.</p>
+</div>
+
+<!-- ── Season selector ─────────────────────────────── -->
+<div class="season-bar">
+    <button class="season-btn active" onclick="setSeason(1,this)">Season 1 · Wks 1–4</button>
+    <button class="season-btn" onclick="setSeason(2,this)">Season 2 · Wks 5–8</button>
+    <button class="season-btn" onclick="setSeason(3,this)">Season 3 · Wks 9–12</button>
+    <button class="season-btn" onclick="setSeason(4,this)">Season 4 · Wks 13–16</button>
+</div>
+
+<!-- ── Points legend ───────────────────────────────── -->
+<div class="points-key">
+    <div class="key-item"><div class="key-dot" style="background:#4a7c59"></div>Session = 10 pts</div>
+    <div class="key-item"><div class="key-dot" style="background:#d4a843"></div>PR = 25 pts</div>
+    <div class="key-item"><div class="key-dot" style="background:#c87941"></div>Streak Bonus = 15 pts/wk</div>
+    <div class="key-item"><div class="key-dot" style="background:#7ab09a"></div>Perfect Week = 20 pts</div>
+    <div class="key-item"><div class="key-dot" style="background:#a8b0b8"></div>Custom Bonus = varies</div>
+</div>
+
+<!-- ── Leaderboard ─────────────────────────────────── -->
+<div id="leaderboard" class="leaderboard"></div>
+
+<div class="divider"></div>
+
+<!-- ── Admin toggle ────────────────────────────────── -->
+<div class="admin-toggle">
+    <button onclick="toggleAdmin()">⚙ TRAINER PANEL</button>
+</div>
+
+<!-- ── Admin panel ─────────────────────────────────── -->
+<div id="admin-panel" class="admin-panel">
+
+    <div class="admin-section">
+        <h3>ADD TO ROSTER</h3>
+        <div class="form-row">
+            <input type="text" id="new-name" class="form-input" placeholder="Dad's name...">
+            <button class="btn btn-gold" onclick="addMember()">Add Member</button>
+        </div>
+        <div id="member-list-admin" class="member-list-admin"></div>
+    </div>
+
+    <div class="admin-section">
+        <h3>LOG EVENT</h3>
+        <div class="form-row">
+            <select id="event-member" class="form-select">
+                <option value="">Select member...</option>
+            </select>
+            <select id="event-type" class="form-select" onchange="toggleBonusField()">
+                <option value="session">💪 Session Attended (+10)</option>
+                <option value="pr">🏆 PR Hit (+25)</option>
+                <option value="streak">🔥 Week Streak Bonus (+15)</option>
+                <option value="perfect_week">⭐ Perfect Week (+20)</option>
+                <option value="bonus">🎯 Custom Bonus</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <input type="text" id="event-note" class="form-input" placeholder="Note (optional)...">
+            <input type="number" id="event-bonus-pts" class="form-input" placeholder="Points" style="display:none; max-width:110px; min-width:0;">
+            <button class="btn btn-gold" onclick="logEvent()">Log It ↗</button>
+        </div>
+        <div id="event-log" class="event-log"></div>
+    </div>
+
+    <div class="admin-section">
+        <h3>SEASON CONTROL</h3>
+        <p style="color:rgba(245,238,216,0.4); font-size:13px; margin-bottom:16px; line-height:1.6;">
+            Each season tracks independently. Reset clears all events for the current season only — members stay on the roster.
+        </p>
+        <button class="btn btn-danger" onclick="confirmReset()">🗑 Reset Season Data</button>
+    </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+let state = { season: 1, members: [], events: [] };
+
+// ── STORAGE ────────────────────────────────────────────────────────────────
+function save() { localStorage.setItem('oak_dadclass_v3', JSON.stringify(state)); }
+function load() {
+    const d = localStorage.getItem('oak_dadclass_v3');
+    if (d) state = JSON.parse(d);
+}
+
+// ── TIERS ──────────────────────────────────────────────────────────────────
+const TIERS = [
+    { min: 500, label: '👑 Dungeon Master'  },
+    { min: 300, label: '⚔️ Paladin'         },
+    { min: 150, label: '🛡️ Warrior'         },
+    { min: 50,  label: '🗡️ Squire'          },
+    { min: 0,   label: '🎲 Peasant'         }
+];
+
+function getTier(pts) {
+    return TIERS.find(t => pts >= t.min) || TIERS[TIERS.length - 1];
+}
+
+function getProgress(pts) {
+    const idx = TIERS.findIndex(t => pts >= t.min);
+    if (idx === 0) return { next: '👑 Oak Legend', pct: 100, cur: pts, target: TIERS[0].min };
+    const cur  = TIERS[idx]?.min || 0;
+    const next = TIERS[idx - 1].min;
+    return {
+        next: TIERS[idx - 1].label,
+        pct:  Math.min(100, Math.round((pts - cur) / (next - cur) * 100)),
+        cur:  pts,
+        target: next
+    };
+}
+
+// ── BADGES ─────────────────────────────────────────────────────────────────
+function getBadges(memberId) {
+    const all    = state.events.filter(e => e.memberId === memberId);
+    const season = all.filter(e => e.season === state.season);
+    const totalSess  = all.filter(e => e.type === 'session').length;
+    const seasonSess = season.filter(e => e.type === 'session').length;
+    const prs    = season.filter(e => e.type === 'pr').length;
+    const streaks = season.filter(e => e.type === 'streak').length;
+    const perfect = season.filter(e => e.type === 'perfect_week').length;
+    const badges = [];
+
+    if (totalSess  >= 50) badges.push('🌳 Oak Veteran');
+    if (totalSess  >= 20) badges.push('🏃 20 Sessions');
+    if (seasonSess >= 10) badges.push('💪 Dialed In');
+    if (prs >= 5)         badges.push('💥 PR Machine');
+    if (prs >= 1)         badges.push('🎯 Hit a PR');
+    if (streaks >= 3)     badges.push('🔥 3-Wk Streak');
+    if (perfect >= 1)     badges.push('⭐ Perfect Week');
+    if (perfect >= 3)     badges.push('🦾 Consistency King');
+    return badges;
+}
+
+// ── STATS ──────────────────────────────────────────────────────────────────
+function getStats(memberId) {
+    const evts = state.events.filter(e => e.memberId === memberId && e.season === state.season);
+    let pts = 0, sessions = 0, prs = 0, streaks = 0, perfect = 0;
+    evts.forEach(e => {
+        if (e.type === 'session')      { pts += 10; sessions++; }
+        if (e.type === 'pr')           { pts += 25; prs++;      }
+        if (e.type === 'streak')       { pts += 15; streaks++;  }
+        if (e.type === 'perfect_week') { pts += 20; perfect++;  }
+        if (e.type === 'bonus')        { pts += (e.points || 0); }
+    });
+    return { pts, sessions, prs, streaks, perfect };
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function render() {
+    const board = document.getElementById('leaderboard');
+
+    if (!state.members.length) {
+        board.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">🏋️‍♂️</div>
+                <p>No members yet.<br>Open the <strong>Trainer Panel</strong> below<br>to build your roster.</p>
+            </div>`;
+        renderAdminList();
+        renderEventLog();
+        return;
+    }
+
+    const ranked = state.members
+        .map(m => ({ ...m, stats: getStats(m.id), badges: getBadges(m.id) }))
+        .sort((a, b) => b.stats.pts - a.stats.pts);
+
+    const RANK_MEDAL = ['🥇', '🥈', '🥉'];
+    const PTS_LABELS = { session: '💪', pr: '🏆', streak: '🔥', perfect_week: '⭐', bonus: '🎯' };
+
+    board.innerHTML = ranked.map((m, i) => {
+        const rank   = i + 1;
+        const rc     = rank <= 3 ? `rank-${rank}` : '';
+        const symbol = rank <= 3 ? RANK_MEDAL[i] : `#${rank}`;
+        const initials = m.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+        const tier   = getTier(m.stats.pts);
+        const prog   = getProgress(m.stats.pts);
+
+        return `
+        <div class="member-card ${rc}" onclick="toggleCard('det-${m.id}')">
+            <div class="card-main">
+                <div class="rank-badge">${symbol}</div>
+                <div class="avatar">${initials}</div>
+                <div class="member-info">
+                    <div class="member-name">${m.name}</div>
+                    <div class="member-tier">${tier.label}</div>
+                    <div class="mini-stats">
+                        <span class="mini-stat">💪 ${m.stats.sessions}</span>
+                        <span class="mini-stat">🏆 ${m.stats.prs} PRs</span>
+                        ${m.stats.streaks  ? `<span class="mini-stat">🔥 ${m.stats.streaks}wk</span>` : ''}
+                        ${m.stats.perfect  ? `<span class="mini-stat">⭐ ${m.stats.perfect}</span>` : ''}
+                    </div>
+                </div>
+                <div class="points-display">
+                    <div class="points-num">${m.stats.pts}</div>
+                    <div class="points-label">pts</div>
+                </div>
+            </div>
+            <div class="card-detail" id="det-${m.id}">
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <div class="stat-box-num">${m.stats.sessions}</div>
+                        <div class="stat-box-label">Sessions</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-num">${m.stats.prs}</div>
+                        <div class="stat-box-label">PRs Hit</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-num">${m.stats.perfect}</div>
+                        <div class="stat-box-label">Perfect Wks</div>
+                    </div>
+                </div>
+                ${m.badges.length ? `
+                <div class="badges-row">
+                    ${m.badges.map(b => `<div class="badge">${b}</div>`).join('')}
+                </div>` : ''}
+                <div class="progress-bar-wrap">
+                    <div class="progress-label">
+                        <span>Next tier: ${prog.next}</span>
+                        <span>${prog.cur} / ${prog.target} pts</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:${prog.pct}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    renderAdminList();
+    renderEventLog();
+    populateSelect();
+}
+
+function toggleCard(id) {
+    document.getElementById(id)?.classList.toggle('open');
+}
+
+// ── ADMIN RENDERING ────────────────────────────────────────────────────────
+function renderAdminList() {
+    const el = document.getElementById('member-list-admin');
+    if (!el) return;
+    if (!state.members.length) {
+        el.innerHTML = '<p style="color:rgba(245,238,216,0.25);font-size:13px;text-align:center;padding:12px 0">Roster is empty</p>';
+        return;
+    }
+    el.innerHTML = state.members.map(m => `
+        <div class="member-list-item">
+            <span>${m.name}</span>
+            <button class="btn btn-danger btn-sm" onclick="removeMember('${m.id}',event)">Remove</button>
+        </div>
+    `).join('');
+}
+
+function renderEventLog() {
+    const el = document.getElementById('event-log');
+    if (!el) return;
+    const PTS = { session: 10, pr: 25, streak: 15, perfect_week: 20 };
+    const LABELS = { session: '💪 Session', pr: '🏆 PR Hit', streak: '🔥 Streak Bonus', perfect_week: '⭐ Perfect Week', bonus: '🎯 Bonus' };
+    const evts = state.events.filter(e => e.season === state.season).slice().reverse().slice(0,20);
+    if (!evts.length) {
+        el.innerHTML = '<p style="color:rgba(245,238,216,0.25);font-size:13px;padding:8px 0">No events logged for this season</p>';
+        return;
+    }
+    el.innerHTML = evts.map(e => {
+        const member = state.members.find(m => m.id === e.memberId);
+        const pts = e.type === 'bonus' ? e.points : PTS[e.type];
+        return `
+        <div class="event-item">
+            <div>
+                <strong style="color:rgba(245,238,216,0.8)">${member?.name || '?'}</strong>
+                <span style="margin-left:6px">${LABELS[e.type] || e.type}</span>
+                ${e.note ? `<span style="opacity:0.45"> · ${e.note}</span>` : ''}
+                <div class="event-date">${new Date(e.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+            </div>
+            <div class="event-pts">+${pts}</div>
+        </div>`;
+    }).join('');
+}
+
+function populateSelect() {
+    const sel = document.getElementById('event-member');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Select member...</option>' +
+        state.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+    if (cur) sel.value = cur;
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────────────
+function addMember() {
+    const el   = document.getElementById('new-name');
+    const name = el.value.trim();
+    if (!name) { toast('Enter a name first!'); return; }
+    if (state.members.find(m => m.name.toLowerCase() === name.toLowerCase())) {
+        toast('Name already on the roster!'); return;
+    }
+    state.members.push({ id: `m${Date.now()}`, name });
+    el.value = '';
+    save(); render();
+    toast(`${name} joined the Dad Class! 💪`);
+}
+
+function removeMember(id, e) {
+    e.stopPropagation();
+    const m = state.members.find(m => m.id === id);
+    if (!confirm(`Remove ${m?.name} from the roster?`)) return;
+    state.members = state.members.filter(x => x.id !== id);
+    state.events  = state.events.filter(x => x.memberId !== id);
+    save(); render();
+    toast('Member removed.');
+}
+
+function logEvent() {
+    const memberId = document.getElementById('event-member').value;
+    const type     = document.getElementById('event-type').value;
+    const note     = document.getElementById('event-note').value.trim();
+    const bonusPts = parseInt(document.getElementById('event-bonus-pts').value) || 0;
+
+    if (!memberId) { toast('Select a member first!'); return; }
+    if (type === 'bonus' && !bonusPts) { toast('Enter the bonus point amount.'); return; }
+
+    const PTS    = { session: 10, pr: 25, streak: 15, perfect_week: 20 };
+    const member = state.members.find(m => m.id === memberId);
+    const pts    = type === 'bonus' ? bonusPts : PTS[type];
+
+    state.events.push({ id:`e${Date.now()}`, memberId, season:state.season, type, points:bonusPts||undefined, note, date:new Date().toISOString() });
+    document.getElementById('event-note').value = '';
+    document.getElementById('event-bonus-pts').value = '';
+    save(); render();
+    toast(`+${pts} pts → ${member?.name} 🎉`);
+}
+
+function setSeason(n, btn) {
+    state.season = n;
+    document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    save(); render();
+}
+
+function toggleAdmin() {
+    const p = document.getElementById('admin-panel');
+    p.classList.toggle('open');
+    if (p.classList.contains('open')) {
+        renderAdminList(); renderEventLog(); populateSelect();
+    }
+}
+
+function toggleBonusField() {
+    const t = document.getElementById('event-type').value;
+    document.getElementById('event-bonus-pts').style.display = t === 'bonus' ? 'block' : 'none';
+}
+
+function confirmReset() {
+    if (!confirm(`Reset all Season ${state.season} events? Members stay on the roster.`)) return;
+    state.events = state.events.filter(e => e.season !== state.season);
+    save(); render();
+    toast('Season data cleared.');
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+load();
+
+// Pre-populate Cohort A members + attendance if this is a fresh load
+if (!state.members.length) {
+    const cohortA = ['Colin Gumbs', 'Chris Rugger', 'Nick Raynor', 'Scott Kern', 'John S'];
+    cohortA.forEach((name, i) => {
+        state.members.push({ id: `m_seed_${i}`, name });
+    });
+
+    // Confirmed sessions from spreadsheet — presence = had workout data logged
+    const sessions = [
+        { date: '2026-02-07', members: ['m_seed_0','m_seed_1','m_seed_2','m_seed_3'] },
+        { date: '2026-02-14', members: ['m_seed_0','m_seed_1','m_seed_2','m_seed_3'] },
+        { date: '2026-02-21', members: ['m_seed_0','m_seed_1','m_seed_2','m_seed_3'] },
+        { date: '2026-03-07', members: ['m_seed_0','m_seed_1','m_seed_2','m_seed_3','m_seed_4'] },
+        { date: '2026-03-14', members: ['m_seed_0','m_seed_1','m_seed_2','m_seed_3','m_seed_4'] },
+    ];
+
+    let eid = 1;
+    sessions.forEach(s => {
+        s.members.forEach(mid => {
+            state.events.push({
+                id: `e_seed_${eid++}`,
+                memberId: mid,
+                season: 1,
+                type: 'session',
+                note: 'Imported from tracker',
+                date: new Date(s.date).toISOString()
+            });
+        });
+    });
+
+    save();
+}
+
+render();
+</script>
+</body>
+</html>
